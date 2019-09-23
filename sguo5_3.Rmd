@@ -1,0 +1,60 @@
+---
+title: "Assignment 3"
+author: "Shude Guo"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### The Weigelt Corporation has three branch plants with excess production capacity. Fortunately, the corporation has a new product ready to begin production, and all three plants have this capability, so some of the excess capacity can be used in this way. This product can be made in three sizes--large, medium, and small--that yield a net unit profit of $420, $360, and $300, respectively. Plants 1, 2, and 3 have the excess capacity to produce 750, 900, and 450 units per day of this product, respectively, regardless of the size or combination of sizes involved.
+### The amount of available in-process storage space also imposes a limitation on the production rates of the new product. Plants 1, 2, and 3 have 13,000, 12,000, and 5,000 square feet, respectively, of in-process storage space available for a day's production of this product. Each unit of the large, medium, and small sizes produced per day requires 20, 15, and 12 square feet, respectively.
+### Sales forecasts indicate that if available, 900, 1,200, and 750 units of the large, medium, and small sizes, respectively, would be sold per day.
+### At each plant, some employees will need to be laid off unless most of the plant’s excess production capacity can be used to produce the new product. To avoid layoffs if possible, management has decided that the plants should use the same percentage of their excess capacity to produce the new product.
+### Management wishes to know how much of each of the sizes should be produced by each of the plants to maximize profit.
+
+### 1. Solve the problem using lpsolve, or any other equivalent library in R.
+```{r message=FALSE, warning=FALSE}
+library(lpSolveAPI)
+```
+```{r}
+library(readr)
+```
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+sguo5_3 <- read_csv("sguo5_3.lp")
+```
+```{r}
+lprec <- read.lp("sguo5_3.lp")
+```
+```{r echo=TRUE}
+solve(lprec)
+```
+```{r echo=TRUE}
+get.objective(lprec)
+```
+```{r echo=TRUE}
+get.variables(lprec)
+```
+```{r echo=TRUE}
+get.constraints(lprec)
+```
+
+### 2. Identify the shadow prices, dual solution, and reduced costs
+
+```{r echo=TRUE}
+get.sensitivity.rhs(lprec)
+```
+#### Shadow prices: 0.00 0.00 0.00 12.00 20.00 60.00 0.00 0.00 0.00 -0.08 0.56
+#### Reduced cost: 0.00 0.00 -24.00	-40.00	0.00	0.00	-360.00	-120.00	0.00
+
+### 3. Further, identify the sensitivity of the above prices and costs. That is, specify the range of shadow prices and reduced cost within which the optimal solution will not change.
+
+```{r echo=TRUE}
+cbind(get.sensitivity.rhs(lprec)$duals[1:11], get.sensitivity.rhs(lprec)$dualsfrom[1:11], get.sensitivity.rhs(lprec)$dualstill[1:11])
+```
+```{r echo=TRUE}
+cbind(get.sensitivity.rhs(lprec)$duals[12:20], get.sensitivity.rhs(lprec)$dualsfrom[12:20], get.sensitivity.rhs(lprec)$dualstill[12:20])
+```
+
+### 4. Formulate the dual of the above problem and solve it. Does the solution agree with what you observed for the primal problem?
