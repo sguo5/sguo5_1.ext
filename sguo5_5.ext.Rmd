@@ -1,0 +1,127 @@
+---
+title: "Homework 5"
+author: "Shude Guo"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### 1. Consider the following activity-on-arc project network, where the 12 arcs (arrows) represent the 12 activities (tasks) that must be performed to complete the project and the network displays the order in which the activities need to be performed. The number next to each arc (arrow) is the time required for the corresponding activity. Consider the problem of finding the longest path (the largest total time) through this network from start (node 1) to finish (node 9), since the longest path is the critical path.
+
+#### Decision variable:
+#### Let Xij = the arc from node i to node j, i=1,2,3,4,5,6,7,8, j=2,3,4,5,6,7,8,9
+#### Objective Function:
+#### Max = 5X12 + 3X13 + 3X35 + 2X25 + 4X24 + 4X47 + 1X46 + 2X58 + 6X57 + 6X57 + 5X69 + 4X79 + 7X89
+#### St:
+#### Starting node：
+#### X12 + X13 = 1
+#### Intermediate nodes:
+#### X12 – X25 - X24 = 0
+#### X13 – X35 = 0
+#### X24 – X46 – X47 = 0
+#### X25 + X35 - X57 - X58 = 0
+#### X46 – X69 = 0
+#### X57 + X47 – X79 = 0
+#### X58 – X89 = 0
+#### End node:
+#### X69 + X79 + X89 = 1
+
+```{r warning=FALSE}
+library(lpSolveAPI)
+```
+```{r}
+hw51.ip <- make.lp(nrow = 9, ncol = 12)
+```
+```{r}
+arc.names <- c("x12", "x13", "x24", "x25", "x35", "x46", "x47", "x57", "x58", "x69", "x79", "x89")
+node.names <- c("node1", "node2", "node3", "node4", "node5", "node6", "node7", "node8", "node9")
+```
+```{r}
+rownames(hw51.ip) <- node.names
+colnames(hw51.ip) <- arc.names
+```
+```{r}
+time <- c(5, 3, 4, 2, 3, 1, 4, 6, 2, 5, 4, 7)
+set.objfn(hw51.ip, -1*time)
+```
+```{r}
+set.row(hw51.ip, 1, c(1, 1), indices = c(1, 2) )
+set.row(hw51.ip, 2, c(1, -1, -1), indices = c(1, 3, 4))
+set.row(hw51.ip, 3, c(1, -1), indices = c(2, 5))
+set.row(hw51.ip, 4, c(1, -1, -1), indices = c(3, 6, 7))
+set.row(hw51.ip, 5, c(1, 1, -1, -1), indices = c(4, 5, 8, 9))
+set.row(hw51.ip, 6, c(1, -1), indices = c(6, 10))
+set.row(hw51.ip, 7, c(1, 1, -1), indices = c(7, 8, 11))
+set.row(hw51.ip, 8, c(1, -1), indices = c(9, 12))
+set.row(hw51.ip, 9, c(1, 1, 1), indices = c(10, 11, 12))
+```
+```{r}
+set.constr.type(hw51.ip, rep("="), 9)
+```
+```{r}
+rhs <- c(1, rep(0, 7), 1)
+set.rhs(hw51.ip, rhs)
+```
+```{r}
+set.type(hw51.ip, 1:12, "binary")
+```
+```{r}
+solve(hw51.ip)
+```
+```{r}
+get.objective(hw51.ip)
+```
+```{r}
+get.variables(hw51.ip)
+```
+```{r}
+cbind(arc.names, get.variables(hw51.ip))
+```
+#### The critical path is:
+#### From node 1 to 2
+#### From node 2 to 5
+#### From node 5 to 7
+#### From node 7 to 9
+#### The duration of the project is 17 time units.
+
+### 2. Selecting an Investment Portfolio An investment manager wants to determine an opti- mal portfolio for a wealthy client. The fund has $2.5 million to invest, and its objective is to maximize total dollar return from both growth and dividends over the course of the coming year. The client has researched eight high-tech companies and wants the portfolio to consist of shares in these firms only. Three of the firms (S1 – S3) are primarily software companies, three (H1–H3) are primarily hardware companies, and two (C1–C2) are internet consulting companies. The client has stipulated that no more than 40 percent of the investment be allocated to any one of these three sectors. To assure diversification, at least $100,000 must be invested in each of the eight stocks. Moreover, the number of shares invested in any stock must be a multiple of 1000.
+
+#### Decision variable:
+#### Let Xi = the number of shares to buy for each of the stocks, i=1,2,3,4,5,6,7,8, 1=S1, 2=S2, 3=S3, 4=H1, 5=H3, 6=H3, 7=C1, 8=C2
+#### Objective Function:
+#### Max = 4X1 + 6.5X2 + 5.9X3 + 5.4X4 + 5.15X5 + 10X6 + 8.4X7 + 6.25X8
+#### Constraint:
+#### 40X1 + 50X2 + 80X3 + 60X4 + 45X5 + 60X6 + 30X7 + 25X8 <= 2500000
+#### 40X1 + 50X2 + 80X3 <= 1000000
+#### 60X4 + 45 X5 + 60X6 <= 1000000
+#### 30X7 + 25X8 <= 1000000
+#### 40X1 >= 100000
+#### 50X2 >= 100000
+#### 80X3 >= 100000
+#### 60X4 >= 100000
+#### 45X5 >= 100000
+#### 60X6 >= 100000
+#### 30X7 >= 100000
+#### 25X8 >= 100000
+
+```{r warning=FALSE}
+library(lpSolveAPI)
+```
+```{r}
+x <- read.lp("sguo5_5.2.lp")
+```
+```{r}
+solve(x)
+```
+```{r}
+get.objective(x)
+```
+```{r}
+get.variables(x)
+```
+
+#### The maximum return on the portfolio is 487152.8 dollars.
+#### The optimal number of shares to buy for S1 is 2500, S2 is 6000, S3 is 1250, H1 is 1667, H2 is 2222, H3 is 13333, C1 is 30000, C2 is 4000.
+#### The corresponding dollar amount invested in S1 is 100000, S2 is 300000, S3 is 100000, H1 is 100020, H2 is 99990, H3 is 799980, C1 is 900000, C2 is 100000.
