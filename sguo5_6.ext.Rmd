@@ -1,0 +1,84 @@
+---
+title: "sguo5_6.ext"
+author: "Shude Guo"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Hope Valley Health Care Association
+```{r message=FALSE, warning=FALSE}
+library(Benchmarking)
+```
+```{r}
+x <- matrix(c(14000,14000,42000,28000,19000,14000,3500,21000,10500,42000,25000,15000),ncol = 2)
+y <- matrix(c(150,400,320,520,350,320,0.2,0.7,1.2,2.0,1.2,0.7),ncol = 2)
+colnames(x) <- c("Reimbursed Patient-Days","Privately Paid Patient-Days")
+colnames(y) <- c("Staff Hours per Day","Supplies per Day")
+x
+y
+crs <- dea(x,y,RTS = "crs") 
+crs
+fdh <- dea(x,y,RTS = "fdh") 
+fdh
+vrs <- dea(x,y,RTS = "vrs") 
+vrs
+irs <- dea(x,y,RTS = "irs") 
+irs
+drs <- dea(x,y,RTS = "drs") 
+drs
+```
+
+#### Peers and Lambda
+```{r}
+peers(crs)
+lambda(crs)
+peers(fdh)
+lambda(fdh)
+peers(vrs)
+lambda(vrs)
+peers(irs)
+lambda(irs)
+peers(drs)
+lambda(drs)
+```
+
+
+### R&D Division of the Emax Corporation
+#### Question 1
+##### 20x1 + 15x2 + 25x3 = P
+##### 6x1 + 4x2 + 5x3 = 50
+##### 8x1 + 7x2 + 5x3 >= 75
+
+##### y1 = 6x1 + 4x2 + 5x3 - 50
+##### y2 = 8x1 + 7x2 + 5x3 - 75
+
+##### y1+ - y1- = 6x1 + 4x2 + 5x3 - 50
+##### y2+ - y2- = 8x1 + 7x2 + 5x3 – 75
+
+#### Question 2
+##### Max Z = 20x1 + 15x2 + 25x3 - 6y1+ - 6y1- - 3y2-  
+##### 6x1 + 4x2 + 5x3 – (y1+ - y1-) = 50
+##### 8x1 + 7x2 + 5x3 – (y2+ - y2-) = 75
+
+#### Question 3
+##### // Objective function
+##### max: 20 x1 + 15 x2 + 25 x3 - 6 y1p - 6 y1m - 3 y2m;
+##### // Constraints
+##### 6x1 + 4x2 + 5x3 + y1m - y1p = 50;
+##### 8x1 + 7x2 + 5x3 + y2m - y2p = 75;
+
+```{r}
+library(lpSolveAPI)
+setwd("~/Desktop")
+x <- read.lp("sguo5_6.lp")
+x
+```
+```{r}
+solve(x)
+get.objective(x)
+get.variables(x)
+```
+
